@@ -1169,7 +1169,10 @@ func TestAddUserToChannel(t *testing.T) {
 	user1 := model.User{Email: strings.ToLower(model.NewId()) + "success+test@example.com", Nickname: "Darth Vader", Username: "vader" + model.NewId(), Password: "passwd1", AuthService: ""}
 	ruser1, _ := th.App.CreateUser(&user1)
 	defer th.App.PermanentDeleteUser(&user1)
+	bot := th.CreateBot()
+
 	th.App.AddTeamMember(th.BasicTeam.Id, ruser1.Id)
+	th.App.AddTeamMember(th.BasicTeam.Id, bot.UserId)
 
 	group := th.CreateGroup()
 
@@ -1206,6 +1209,10 @@ func TestAddUserToChannel(t *testing.T) {
 	require.Nil(t, err)
 
 	err = th.App.JoinChannel(th.BasicChannel, ruser2.Id)
+	require.Nil(t, err)
+
+	// ensure that a bot can be added to a group sycned channel
+	err = th.App.JoinChannel(th.BasicChannel, bot.UserId)
 	require.Nil(t, err)
 
 	// verify user was added as an admin
